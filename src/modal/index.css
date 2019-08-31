@@ -1,0 +1,65 @@
+.button {
+    background-color: #01a11c;
+    border: 1px solid #01a11c;
+    color: white;
+    padding: 6px 10px;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    letter-spacing: -0.5px;
+}
+
+.button:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background-color: white;
+    color: #01a11c;
+    border: 1px solid #01a11c;
+}
+
+.butSweet {
+    color: white;
+    text-decoration: none;
+}
+
+.butSweet:hover {
+    color: white;
+    text-decoration: none;
+}
+
+.pinjam {
+    text-decoration: none;
+    margin: 1em 0;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    width: 100%;
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+
+.buttonLogin {
+    padding: 0.5em 2em;
+    border-radius: 5px;
+    border: none;
+    background-color: #01a11c;
+    font-family: 'Segoe UI';
+    font-weight: 500;
+    color: white;
+    font-size: 18px;
+}
+
+.login {
+    border: 1.5px solid #666;
+    color: #444;
+    padding: 8px 15px;
+    text-decoration: none;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: bold;
+
+}
+
+.login:hover {
+    background-color: #01a11c;
+    border: 1px solid #01a11c;
+    color: white;
+}
