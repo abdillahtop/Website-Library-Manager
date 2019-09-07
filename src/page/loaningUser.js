@@ -41,7 +41,9 @@ class CekLoanUser extends Component {
         console.log("loan all :", list)
         return (
             <div>
-                <Navbar />
+                <div>
+                    <Navbar />
+                </div>
                 <div className="container " style={{ marginTop: '3em', justifyItems: 'center' }}>
 
                     <Table className="col-md-12 ml-4 table-responsive" style={{ justifyContent: 'center', alignItems: 'center' }}>

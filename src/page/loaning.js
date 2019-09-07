@@ -35,7 +35,7 @@ class cekLoan extends Component {
                     showConfirmButton: false,
                 })
                 setTimeout(() => {
-                    window.location.reload()
+                    window.location.href = '/'
                 }, 500);
             })
             .catch(() => {
@@ -63,7 +63,9 @@ class cekLoan extends Component {
         console.log("loan all :", list)
         return (
             <div>
-                <Navbar />
+                <div>
+                    <Navbar />
+                </div>
                 <div className="container table-responsive" style={{ marginTop: '3em', justifyItems: 'center' }}>
 
                     <Table>

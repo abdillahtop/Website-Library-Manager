@@ -41,7 +41,7 @@ class IsUser extends Component {
             showConfirmButton: false,
         })
         setTimeout(() => {
-            window.location.reload()
+            window.location.href = '/'
         }, 500);
     }
 
@@ -57,7 +57,7 @@ class IsUser extends Component {
                     showConfirmButton: false,
                 })
                 setTimeout(() => {
-                    window.location.reload()
+                    window.location.href = '/'
                 }, 500);
             })
     }
@@ -78,7 +78,9 @@ class IsUser extends Component {
         console.log("userlist", list)
         return (
             <div>
-                <Nav />
+                <div>
+                    <Nav />
+                </div>
                 <div className="container" style={{ marginTop: '3em' }}>
 
 
