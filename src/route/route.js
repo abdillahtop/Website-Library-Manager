@@ -19,7 +19,7 @@ export default class link extends Component {
                     <Route exact path='/' component={Home} />
                     <Route path='/alluser' component={User} />
                     <Route path='/book/:bookid' component={Detail} />
-                    <Route path='/loan' component={Loaning} />
+                    <Route exact path='/loan' component={Loaning} />
                     <Route path='/loan/:cardid' component={LoanUser} />
                     <Route path='/register' component={Register} />
                 </Router>
