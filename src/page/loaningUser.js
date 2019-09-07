@@ -1,14 +1,15 @@
 import React, { Component } from 'react';
-import { Table } from 'reactstrap';
+import { Table, Spinner } from 'reactstrap';
 import Navbar from '../components/navbar'
-// import Swal from 'sweetalert2'
+import Swal from 'sweetalert2'
 import { connect } from 'react-redux'
 import { getLoaningUser } from '../publics/redux/action/loaning'
 const dataUser = JSON.parse(localStorage.getItem('data')) || 'Anda Belum Login Bosku'
 
 class CekLoanUser extends Component {
     state = {
-        loanings: []
+        loanings: [],
+        loading: true
     }
 
     componentDidMount = async () => {
@@ -16,9 +17,12 @@ class CekLoanUser extends Component {
         const Token = dataUser.token
         const userid = dataUser.id_user
         await this.props.dispatch(getLoaningUser(cardid, Token, userid))
-        this.setState({
-            loanings: this.props.loaning
-        });
+            .then(() => {
+                this.setState({
+                    loanings: this.props.loaning,
+                    loading: false
+                });
+            })
     };
 
     formatDate(date) {
@@ -32,67 +36,73 @@ class CekLoanUser extends Component {
     }
 
     render() {
-        const { loanings } = this.state
+        const { loanings, loading } = this.state
         const list = loanings.loaningList
         console.log("loan all :", list)
         return (
             <div>
                 <Navbar />
-                <div className="container table-responsive" style={{ marginTop: '5em', justifyItems: 'center' }}>
+                <div className="container " style={{ marginTop: '3em', justifyItems: 'center' }}>
 
-                    <Table>
+                    <Table className="col-md-12 ml-4 table-responsive" style={{ justifyContent: 'center', alignItems: 'center' }}>
                         {
-                            dataUser.role === "user"
+                            loading
                                 ?
-                                <div>
-                                    <thead>
-                                        <tr >
-                                            <th >Title</th>
-                                            <th>Date Borrow</th>
-                                            <th>Date Return</th>
-                                            <th>Forfeit</th>
-                                        </tr>
-                                    </thead>
-                                    {
-
-                                        list &&
-                                        list.length > 0 &&
-                                        list.map((entry, index) => {
-
-                                            return (
-                                                <tbody key={index}>
-                                                    <tr>
-                                                        <td>{entry.title}</td>
-                                                        <td>{this.formatDate(entry.borrow_date)}</td>
-                                                        <td>{this.formatDate(entry.expaired)}</td>
-                                                        <td>{entry.forfeit}</td>
-                                                    </tr>
-
-
-                                                </tbody>
-                                            )
-
-                                        })
-
-                                    }
+                                <div className="App-loading">
+                                    <Spinner color="success" />
                                 </div>
                                 :
-                                <div>
-                                    <thead>
-                                        <tr >
-                                            <th >Title</th>
-                                            <th>Date Borrow</th>
-                                            <th>Date Return</th>
-                                            <th>Forfeit</th>
-                                        </tr>
-                                    </thead>
+                                dataUser.role === "user"
+                                    ?
+                                    <div>
+                                        <thead>
+                                            <tr >
+                                                <th >Title</th>
+                                                <th>Date Borrow</th>
+                                                <th>Date Return</th>
+                                                <th>Forfeit</th>
+                                            </tr>
+                                        </thead>
+                                        {
 
-                                    <tbody>
-                                        <tr>
-                                            <h1>Anda Belum Meminjam Apapun</h1>
-                                        </tr>
-                                    </tbody>
-                                </div>
+                                            list &&
+                                            list.length > 0 &&
+                                            list.map((entry, index) => {
+
+                                                return (
+                                                    <tbody key={index}>
+                                                        <tr>
+                                                            <td>{entry.title}</td>
+                                                            <td>{this.formatDate(entry.borrow_date)}</td>
+                                                            <td>{this.formatDate(entry.expaired)}</td>
+                                                            <td>{entry.forfeit}</td>
+                                                        </tr>
+
+
+                                                    </tbody>
+                                                )
+
+                                            })
+
+                                        }
+                                    </div>
+                                    :
+                                    <div>
+                                        <thead>
+                                            <tr >
+                                                <th >Title</th>
+                                                <th>Date Borrow</th>
+                                                <th>Date Return</th>
+                                                <th>Forfeit</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr>
+                                                <h1>Anda Belum Meminjam Apapun</h1>
+                                            </tr>
+                                        </tbody>
+                                    </div>
 
                         }
                     </Table>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
-import { Input, Button } from 'reactstrap'
+import { Input, Button, Spinner } from 'reactstrap'
 import { getBook, searchBook, getMoreBook } from '../publics/redux/action/book'
 import Nav from '../components/navbar';
 import Modal from '../modal/modal'
@@ -16,6 +16,8 @@ class Home extends Component {
         this.toggle = this.toggle.bind(this);
         this.state = {
             isOpen: false,
+            loading: true,
+            Tersedia: 'Tersedia',
             books: [],
             searchs: [],
             searching: '',
@@ -24,11 +26,18 @@ class Home extends Component {
     }
 
     componentDidMount = async (page) => {
-        await this.props.dispatch(getBook());
-        this.setState({
-            books: this.props.book,
-        });
+        await this.props.dispatch(getBook())
+            .then(() => {
+                this.setState({
+                    loading: false,
+                    books: this.props.book,
+                });
+            })
         await this.props.dispatch(getMoreBook(page))
+            .then(result => {
+                console.log("getmore", result)
+                this.setState({ loading: false })
+            })
     };
 
     searchBook(search) {
@@ -55,7 +64,7 @@ class Home extends Component {
     }
 
     render() {
-        const { books } = this.state;
+        const { books, loading } = this.state;
         const list = books.bookList
 
         let next = async () => {
@@ -64,9 +73,11 @@ class Home extends Component {
             })
             const page = this.state.page
             await this.props.dispatch(getMoreBook(page + 1))
-            this.setState({
-                books: this.props.book
-            })
+                .then(() => {
+                    this.setState({
+                        books: this.props.book
+                    })
+                })
         }
 
         let prev = async () => {
@@ -75,11 +86,15 @@ class Home extends Component {
             })
             const page = this.state.page
             await this.props.dispatch(getMoreBook(page - 1))
-            this.setState({
-                books: this.props.book
-            })
+                .then(() => {
+                    this.setState({
+                        books: this.props.book
+                    })
+                })
+
         }
 
+        console.log("booklist", list)
         return (
             <div>
                 <Nav />
@@ -87,52 +102,76 @@ class Home extends Component {
                     {
                         dataUser.role === 'admin'
                             ?
-                            <div style={{ float: 'right' }}>
-                                <Input placeholder="Search Books Here..." style={{ marginTop: '50px' }} className="searchAdmin" onChange={(e) => this.searchBook({ search: e.target.value })} />
-                                <div style={{ float: 'right', marginTop: '-40px' }}>
+                            <div>
+                                <div className="col-md-11">
+                                    <Input placeholder="Search Books Here..." style={{ marginTop: '50px' }} className="searchAdmin" onChange={(e) => this.searchBook({ search: e.target.value })} />
+                                </div>
+                                <div className="col-md-2" style={{ marginTop: '-40px', float: 'right', marginLeft: 20 }}>
                                     <Modal />
                                 </div>
-                                <div className="Col md-12 layoutStyle" style={{ marginTop: '50px' }} >
+                                <div className="col-md-12 layoutStyle" style={{ marginTop: '50px' }} >
                                     {
-                                        list &&
-                                        list.length > 0 &&
-                                        list.map((entry, index) => {
-                                            return (
-                                                <div key={index} className="Col md-8 boxs">
-                                                    <Link to={`/book/${entry.id_book}`}>
-                                                        <div>
-                                                            <p className="statusView">{entry.status}</p>
-                                                            <img className="adjuctimgs" src={entry.image} alt="..." />
-                                                            <p className="catView">[ {entry.category_name}]</p>
-                                                            <p className="textViews">{this.maxText(entry.title)}</p>
+                                        loading
+                                            ?
+                                            <div className="App-loading">
+                                                <Spinner color="success" />
+                                            </div>
+                                            :
+                                            list.length === 0
+                                                ?
+                                                <text style={{ marginBottom: 20 }}>Anda Telah Mencapai item terakhir</text>
+                                                :
+                                                list &&
+                                                list.length > 0 &&
+                                                list.map((entry, index) => {
+                                                    return (
+                                                        <div key={index} className="boxs">
+                                                            <Link style={{ textDecoration: 'none' }} to={`/book/${entry.id_book}`}>
+                                                                <div>
+                                                                    {
+                                                                        entry.status === "Tersedia"
+                                                                            ?
+                                                                            <p className="statusViewAvail">{entry.status}</p>
+                                                                            :
+                                                                            <p className="statusViewNot">{entry.status}</p>
+                                                                    }
+                                                                    <img className="adjuctimgs" src={entry.image} alt="..." />
+                                                                    <p className="catView">[ {entry.category_name}]</p>
+                                                                    <p className="textViews">{this.maxText(entry.title)}</p>
+                                                                </div>
+                                                            </Link>
                                                         </div>
-                                                    </Link>
-                                                </div>
-                                            )
-                                        })
+                                                    )
+                                                })
                                     }
                                 </div>
                                 <div className="row justify-content-md-center" style={{ marginTop: '-80px', paddingBottom: '100px', alignContent: 'center' }}>
-                                    <div className="col-md-6 offset-4">
-                                        <Button
-                                            color='none'
-                                            className='btn btn-outline-success '
-                                            onClick={prev}
-                                            disabled={this.state.page < 2}
+                                    {
+                                        list !== undefined
+                                            ?
+                                            <div className="col-md-6 offset-3">
+                                                <Button
+                                                    color='none'
+                                                    className='btn btn-outline-success '
+                                                    onClick={prev}
+                                                    disabled={this.state.page < 2}
 
-                                        >
-                                            Prev
+                                                >
+                                                    Prev
                                      </Button>
-                                        <text style={{ padding: '0 25px' }}>{this.state.page}</text>
-                                        <Button
-                                            color='none'
-                                            className='btn btn-outline-success'
-                                            onClick={next}
-                                        >
-                                            Next
+                                                <text style={{ padding: '0 25px' }}>{this.state.page}</text>
+                                                <Button
+                                                    color='none'
+                                                    className='btn btn-outline-success'
+                                                    onClick={next}
+                                                    disabled={list.length === 0}
+                                                >
+                                                    Next
                                     </Button>
 
-                                    </div>
+                                            </div>
+                                            : ''
+                                    }
                                 </div>
                             </div>
                             :
@@ -152,95 +191,180 @@ class Home extends Component {
                                     </div>
 
                                     <div className="col-md-10">
-                                        <Input placeholder="Search Books Here..." className="searcHome" onChange={(e) => this.searchBook({ search: e.target.value })} />
-                                        <div className="Col md-12 layoutStyle" style={{ marginTop: '50px' }} >
+                                        <div className="col-md-12">
+                                            <Input placeholder="Search Books Here..." className="searcHome" onChange={(e) => this.searchBook({ search: e.target.value })} />
+                                        </div>
+                                        <div className="col-md-12 layoutStyle" style={{ marginTop: '50px' }} >
                                             {
-                                                list &&
-                                                list.length > 0 &&
-                                                list.map((entry, index) => {
-                                                    return (
-                                                        <div key={index} className="Col md-8 boxs">
-                                                            <Link to={`/book/${entry.id_book}`}>
-                                                                <div>
-                                                                    <p className="statusView">{entry.status}</p>
-                                                                    <img className="adjuctimgs" src={entry.image} alt="..." />
-                                                                    <p className="catView">[ {entry.category_name}]</p>
-                                                                    <p className="textViews">{this.maxText(entry.title)}</p>
+                                                loading
+                                                    ?
+                                                    <div className="App-loading">
+                                                        <Spinner color="success" />
+                                                    </div>
+                                                    :
+                                                    list.length === 0
+                                                        ?
+                                                        <text style={{ marginBottom: 20 }}>Anda Telah Mencapai item terakhir</text>
+                                                        :
+                                                        list &&
+                                                        list.length > 0 &&
+                                                        list.map((entry, index) => {
+                                                            return (
+                                                                <div key={index} className="boxs">
+                                                                    {
+                                                                        entry.status === "Tidak tersedia"
+                                                                            ?
+                                                                            <div>
+                                                                                {
+                                                                                    entry.status === "Tersedia"
+                                                                                        ?
+                                                                                        <p className="statusViewAvail">{entry.status}</p>
+                                                                                        :
+                                                                                        <p className="statusViewNot">{entry.status}</p>
+                                                                                }
+                                                                                <img className="adjuctimgs" src={entry.image} alt="..." />
+                                                                                <p className="catView">[ {entry.category_name}]</p>
+                                                                                <p className="textViews">{this.maxText(entry.title)}</p>
+                                                                            </div>
+                                                                            :
+                                                                            entry.status === "Tersedia"
+                                                                                ?
+                                                                                <Link style={{ textDecoration: 'none' }} to={`/book/${entry.id_book}`}>
+                                                                                    <div>
+                                                                                        {
+                                                                                            entry.status === "Tersedia"
+                                                                                                ?
+                                                                                                <p className="statusViewAvail">{entry.status}</p>
+                                                                                                :
+                                                                                                <p className="statusViewNot">{entry.status}</p>
+                                                                                        }
+                                                                                        <img className="adjuctimgs" src={entry.image} alt="..." />
+                                                                                        <p className="catView">[ {entry.category_name}]</p>
+                                                                                        <p className="textViews">{this.maxText(entry.title)}</p>
+                                                                                    </div>
+                                                                                </Link> : ''
+                                                                    }
                                                                 </div>
-                                                            </Link>
-                                                        </div>
-                                                    )
-                                                })
+                                                            )
+                                                        })
                                             }
                                         </div>
-                                        <div className="col-12 row justify-content-md-center" style={{ marginTop: '-80px', paddingBottom: '100px', alignContent: 'center' }}>
-                                            <div className="col-md-6 offset-4">
-                                                <Button
-                                                    color='none'
-                                                    className='btn btn-outline-success '
-                                                    onClick={prev}
-                                                    disabled={this.state.page < 2}
-                                                >
-                                                    Prev
+                                        <div className="col-md-12 row justify-content-md-center" style={{ marginTop: '-80px', paddingBottom: '100px', alignContent: 'center' }}>
+                                            {
+                                                list !== undefined
+                                                    ?
+                                                    <div className="col-md-6 offset-3">
+                                                        <Button
+                                                            color='none'
+                                                            className='btn btn-outline-success '
+                                                            onClick={prev}
+                                                            disabled={this.state.page < 2}
+                                                        >
+                                                            Prev
                                      </Button>
-                                                <text style={{ padding: '0 25px' }}>{this.state.page}</text>
-                                                <Button
-                                                    color='none'
-                                                    className='btn btn-outline-success'
-                                                    onClick={next}
-                                                >
-                                                    Next
+                                                        <text style={{ padding: '0 25px' }}>{this.state.page}</text>
+                                                        <Button
+                                                            color='none'
+                                                            className='btn btn-outline-success'
+                                                            onClick={next}
+                                                            disabled={list.length === 0}
+                                                        >
+                                                            Next
                                     </Button>
 
-                                            </div>
+                                                    </div>
+                                                    : ''
+                                            }
                                         </div>
                                     </div>
                                 </div>
                                 :
-                                <div style={{ float: 'right' }}>
-                                    <Input placeholder="Search Books Here..." className="searcHome" onChange={(e) => this.searchBook({ search: e.target.value })} />
+                                <div>
+                                    <div className="col-md-12">
+                                        <Input placeholder="Search Books Here..." className="searcHome" onChange={(e) => this.searchBook({ search: e.target.value })} />
+                                    </div>
                                     <div style={{ float: 'right', marginTop: '-95px' }}>
                                     </div>
-                                    <div className="Col md-12 layoutStyle" style={{ marginTop: '50px' }} >
+                                    <div className="col-md-12 layoutStyle" style={{ marginTop: '50px' }} >
                                         {
-                                            list &&
-                                            list.length > 0 &&
-                                            list.map((entry, index) => {
-                                                return (
-                                                    <div key={index} className="Col md-8 boxs">
-                                                        <Link to={`/book/${entry.id_book}`}>
-                                                            <div>
-                                                                <p className="statusView">{entry.status}</p>
-                                                                <img className="adjuctimgs" src={entry.image} alt="..." />
-                                                                <p className="catView">[ {entry.category_name}]</p>
-                                                                <p className="textViews">{this.maxText(entry.title)}</p>
+                                            loading
+                                                ?
+                                                <div className="App-loading">
+                                                    <Spinner color="success" />
+                                                </div>
+                                                :
+                                                list.length === 0
+                                                    ?
+                                                    <text style={{ marginBottom: 20 }}>Anda Telah Mencapai item terakhir</text>
+                                                    :
+                                                    list &&
+                                                    list.length > 0 &&
+                                                    list.map((entry, index) => {
+                                                        return (
+                                                            <div key={index} className="boxs">
+                                                                {
+                                                                    entry.status === "Tidak tersedia"
+                                                                        ?
+                                                                        <div>
+                                                                            {
+                                                                                entry.status === "Tersedia"
+                                                                                    ?
+                                                                                    <p className="statusViewAvail">{entry.status}</p>
+                                                                                    :
+                                                                                    <p className="statusViewNot">{entry.status}</p>
+                                                                            }
+                                                                            <img className="adjuctimgs" src={entry.image} alt="..." />
+                                                                            <p className="catView">[ {entry.category_name}]</p>
+                                                                            <p className="textViews">{this.maxText(entry.title)}</p>
+                                                                        </div>
+                                                                        :
+                                                                        entry.status === "Tersedia"
+                                                                            ?
+                                                                            <Link style={{ textDecoration: 'none' }} to={`/book/${entry.id_book}`}>
+                                                                                <div>
+                                                                                    {
+                                                                                        entry.status === "Tersedia"
+                                                                                            ?
+                                                                                            <p className="statusViewAvail">{entry.status}</p>
+                                                                                            :
+                                                                                            <p className="statusViewNot">{entry.status}</p>
+                                                                                    }
+                                                                                    <img className="adjuctimgs" src={entry.image} alt="..." />
+                                                                                    <p className="catView">[ {entry.category_name}]</p>
+                                                                                    <p className="textViews">{this.maxText(entry.title)}</p>
+                                                                                </div>
+                                                                            </Link> : ''
+                                                                }
                                                             </div>
-                                                        </Link>
-                                                    </div>
-                                                )
-                                            })
+                                                        )
+                                                    })
                                         }
                                     </div>
-                                    <div className="col-12 row justify-content-md-center" style={{ marginTop: '-80px', paddingBottom: '100px', alignContent: 'center' }}>
-                                        <div className="col-md-6 offset-4">
-                                            <Button
-                                                color='none'
-                                                className='btn btn-outline-success '
-                                                onClick={prev}
-                                                disabled={this.state.page < 2}
-                                            >
-                                                Prev
-                                     </Button>
-                                            <text style={{ padding: '0 25px' }}>{this.state.page}</text>
-                                            <Button
-                                                color='none'
-                                                className='btn btn-outline-success'
-                                                onClick={next}
-                                            >
-                                                Next
-                                    </Button>
-
-                                        </div>
+                                    <div className="col-md-12 row justify-content-md-center" style={{ marginTop: '-80px', paddingBottom: '100px', alignContent: 'center' }}>
+                                        {
+                                            list !== undefined
+                                                ?
+                                                <div className="col-md-6 offset-3">
+                                                    <Button
+                                                        color='none'
+                                                        className='btn btn-outline-success '
+                                                        onClick={prev}
+                                                        disabled={this.state.page < 2}
+                                                    >
+                                                        Prev
+                                            </Button>
+                                                    <text style={{ padding: '0 25px' }}>{this.state.page}</text>
+                                                    <Button
+                                                        color='none'
+                                                        className='btn btn-outline-success'
+                                                        onClick={next}
+                                                        disabled={list.length === 0}
+                                                    >
+                                                        Next
+                                            </Button>
+                                                </div>
+                                                : ''
+                                        }
                                     </div>
                                 </div>
 

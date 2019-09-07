@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 // import Swal from 'sweetalert2'
 import { connect } from 'react-redux'
-import { Table } from 'reactstrap';
+import { Table, Spinner } from 'reactstrap';
 import Swal from 'sweetalert2'
 import Nav from '../components/navbar';
 import { getUser, delUser, verifiedUser } from '../publics/redux/action/users'
@@ -13,7 +13,8 @@ class IsUser extends Component {
         super(props);
         this.state = {
             allUsers: [],
-            delUsers: []
+            delUsers: [],
+            loading: true
         }
     }
 
@@ -24,7 +25,8 @@ class IsUser extends Component {
         // console.log("from didmount :", userid)
         await this.props.dispatch(getUser(Token, userid))
         this.setState({
-            allUsers: this.props.users
+            allUsers: this.props.users,
+            loading: false
         })
     }
 
@@ -35,23 +37,29 @@ class IsUser extends Component {
         })
         Swal.fire({
             type: 'success',
-            title: `User Berhasil dihapus`,
-            confirmButtonText:
-                '<a href="/alluser" class="butSweet">OK</a>'
+            title: `User Berhasil Dihapus`,
+            showConfirmButton: false,
         })
+        setTimeout(() => {
+            window.location.reload()
+        }, 500);
     }
 
     Verified(userid) {
         this.props.dispatch(verifiedUser(userid))
-        this.setState({
-            allUsers: this.props.users
-        })
-        Swal.fire({
-            type: 'success',
-            title: `User Berhasil diveritifikasi`,
-            confirmButtonText:
-                '<a href="/alluser" class="butSweet">OK</a>'
-        })
+            .then(() => {
+                this.setState({
+                    allUsers: this.props.users
+                })
+                Swal.fire({
+                    type: 'success',
+                    title: `Verifikasi User Berhasil`,
+                    showConfirmButton: false,
+                })
+                setTimeout(() => {
+                    window.location.reload()
+                }, 500);
+            })
     }
 
     formatDate(date) {
@@ -65,30 +73,26 @@ class IsUser extends Component {
     }
 
     render() {
-        const { allUsers } = this.state
+        const { allUsers, loading } = this.state
         const list = allUsers.userList
         console.log("userlist", list)
         return (
             <div>
                 <Nav />
-                <div className="container table-responsive " style={{ marginTop: '3em' }}>
-                    <div className="col row justify-content-md-center">
-                        <Table >
+                <div className="container" style={{ marginTop: '3em' }}>
 
-                            <div >
-                                <thead>
-                                    <tr>
-                                        <th >Id User</th>
-                                        <th>Id Card</th>
-                                        <th >Name</th>
-                                        <th >Email</th>
-                                        <th >Last Login</th>
-                                        <th >Created At</th>
-                                        <th>Verify User</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                {list &&
+
+                    {
+                        loading
+                            ?
+                            <div className="App-loading">
+                                <Spinner color="success" />
+                            </div>
+                            :
+                            <Table className='col-md-12 table-responsive'>
+
+                                <div >{
+                                    list &&
                                     list.length > 0 &&
                                     list.map((entry, index) => {
                                         console.log("map", entry)
@@ -114,9 +118,9 @@ class IsUser extends Component {
 
                                     })
                                 }
-                            </div>
-                        </Table>
-                    </div>
+                                </div>
+                            </Table>
+                    }
                 </div>
             </div>
         )

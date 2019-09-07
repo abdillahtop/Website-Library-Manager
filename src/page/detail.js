@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Swal from 'sweetalert2'
+import { Spinner } from 'reactstrap'
 import { Link } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { detailBook, deleteBook, updateBook } from '../publics/redux/action/book'
@@ -13,6 +14,7 @@ class Detail extends Component {
         super(props);
         this.state = {
             modal: false,
+            loading: true,
             books: [],
             updates: [],
         };
@@ -24,29 +26,53 @@ class Detail extends Component {
     componentDidMount = async () => {
         await this.props.dispatch(detailBook(this.props.match.params.bookid))
         this.setState({
-            books: this.props.book
+            books: this.props.book,
+            loading: false
         })
     }
 
     deleteClick() {
         this.props.dispatch(deleteBook(this.props.match.params.bookid))
-        this.setState({
-            books: this.props.book
-        })
+            .then(() => {
+                this.setState({
+                    books: this.props.book,
+                })
+                setTimeout(() => {
+                    window.location.href = '/'
+                }, 500);
+
+                Swal.fire({
+                    title: 'Buku Berhasil Dihapus!',
+                    type: 'success',
+                })
+            })
     }
 
     addLoaning(data) {
         this.props.dispatch(postLoaning(data))
-        this.setState({
-            loanings: this.props.loaning
-        })
-        Swal.fire({
-            title: 'Buku Berhasil dipinjam!',
-            type: 'success',
-            html: '<b>Selamat membaca sahabat, semoga bermanfaat!</b>',
-        }).then(() => {
-            this.toggle()
-        })
+            .then(() => {
+                this.toggle()
+                this.setState({
+                    loanings: this.props.loaning
+                })
+                setTimeout(() => {
+                    window.location.reload()
+                }, 500);
+
+                Swal.fire({
+                    title: 'Buku Berhasil dipinjam!',
+                    type: 'success',
+                    html: '<b>Selamat membaca sahabat, semoga bermanfaat!</b>',
+                })
+            })
+            .catch(() => {
+                this.toggle()
+                Swal.fire({
+                    title: 'Buku Gagal dipinjam!',
+                    type: 'warning',
+                    html: '<b>Mohon Maaf Peminjaman Gagal!</b>',
+                })
+            })
     }
 
     toggle() {
@@ -81,7 +107,7 @@ class Detail extends Component {
     }
 
     render() {
-        const { books } = this.state
+        const { books, loading } = this.state
         const list = books.bookList
         const data = {
             id_book: list ? list.id_book : '',
@@ -90,76 +116,86 @@ class Detail extends Component {
         }
         return (
             <div style={{ backgroundColor: '#f2f2f2', marginBottom: '3em' }}>
-                <section>
-                    {dataUser.role === 'admin'
+                {
+                    loading
                         ?
-                        <div className="box">
-                            <ul className="navLink">
-                                <li><Link className="textLink" to={'/'}>Back</Link></li>
-                                <li><Link className="textLink" onClick={this.toggle}>Edit</Link></li>
-                                <li className="textLink"
-                                    onClick={() => this.deleteClick()}>Delete</li>
-                            </ul>
+                        <div className="App-loading">
+                            <Spinner color="success" />
                         </div>
                         :
-                        <div>
-                            <div className="box">
-                                <ul className="navLink">
-                                    <li><Link className="textLink" to={'/'}><i class="fas fa-arrow-alt-circle-left fa-2x"></i></Link></li>
-                                </ul>
-                            </div>
-                        </div>
-
-                    }
-
-                    <img className="cover" src={list ? list.image : ''} alt=".." />
-                    <img className="imgThum" src={list ? list.image : ''} alt=".." />
-                </section>
-                <section>
-
-                    {
-                        dataUser.role === 'user'
-                            ?
-
-                            <div className="textDetail container" style={{ backgroundColor: '#f2f2f2', marginTop: '20px' }}>
-                                {dataUser.is_verified === 1
+                        <>
+                            <section>
+                                {dataUser.role === 'admin'
                                     ?
-                                    <button
-                                        className="btn btn-success"
-                                        style={{ margin: '20px 0' }}
-                                        onClick={() => this.addLoaning(data)}
-                                        disabled={list ? list.status === "Tidak tersedia" : "Tersedia"}
-                                    >
-                                        Pinjam
-                            </button>
+                                    <div className="box">
+                                        <ul className="navLink">
+                                            <li><Link className="textLink" to={'/'}>Back</Link></li>
+                                            <li><Link className="textLink" onClick={this.toggle}>Edit</Link></li>
+                                            <li><Link className="textLink"
+                                                onClick={() => this.deleteClick()}>Delete</Link></li>
+                                        </ul>
+                                    </div>
                                     :
-                                    <text>Veritifikasi dulu bro</text>
+                                    <div>
+                                        <div className="box">
+                                            <ul className="navLink">
+                                                <li><Link className="textLink" to={'/'}><i class="fas fa-arrow-alt-circle-left fa-2x"></i></Link></li>
+                                            </ul>
+                                        </div>
+                                    </div>
 
                                 }
-                                <h1 className="font" >{list ? list.title : ''}</h1>
-                                <h3>{list ? list.writter : ''}</h3>
-                                <h6 className="tgl">{this.formatDate(list ? list.updated_at : '')}</h6>
-                                <ul className="tambahandetail">
-                                    <li><h5 className="category">{list ? list.category_name : ''}</h5></li>
-                                    <li><h5 className="location">{list ? list.location : ''}</h5></li>
-                                    <li><h5 className="status">{list ? list.status : ''}</h5></li>
-                                </ul>
-                                <p className="textDesc" >{list ? list.description : ''}</p>
-                            </div>
-                            :
-                            <div className="textDetail container" style={{ backgroundColor: '#f2f2f2', marginTop: '20px' }}>
-                                <h1 className="font" >{list ? list.title : ''}</h1>
-                                <h3>{list ? list.writter : ''}</h3>
-                                <h6 className="tgl">{this.formatDate(list ? list.updated_at : '')}</h6>
-                                <ul className="tambahandetail">
-                                    <li><h5 className="category">{list ? list.category_name : ''}</h5></li>
-                                    <li><h5 className="location">{list ? list.location : ''}</h5></li>
-                                    <li><h5 className="status">{list ? list.status : ''}</h5></li>
-                                </ul>
-                                <p className="textDesc" >{list ? list.description : ''}</p>
-                            </div>
-                    }
-                </section>
+
+                                <img className="cover" src={list ? list.image : ''} alt=".." />
+                                <img className="imgThum" src={list ? list.image : ''} alt=".." />
+                            </section>
+                            <section>
+
+                                {
+                                    dataUser.role === 'user'
+                                        ?
+
+                                        <div className="textDetail container" style={{ backgroundColor: '#f2f2f2', marginTop: '20px' }}>
+                                            {dataUser.is_verified === 1
+                                                ?
+                                                <button
+                                                    className="btn btn-success"
+                                                    style={{ margin: '20px 0' }}
+                                                    onClick={() => this.addLoaning(data)}
+                                                    disabled={list ? list.status === "Tidak tersedia" : "Tersedia"}
+                                                >
+                                                    Pinjam
+                            </button>
+                                                :
+                                                <text>Veritifikasi dulu bro</text>
+
+                                            }
+                                            <h1 className="font" >{list ? list.title : ''}</h1>
+                                            <h3>{list ? list.writter : ''}</h3>
+                                            <h6 className="tgl">{this.formatDate(list ? list.updated_at : '')}</h6>
+                                            <ul className="tambahandetail">
+                                                <li><h5 className="category">{list ? list.category_name : ''}</h5></li>
+                                                <li><h5 className="location">{list ? list.location : ''}</h5></li>
+                                                <li><h5 className="status">{list ? list.status : ''}</h5></li>
+                                            </ul>
+                                            <p className="textDesc" >{list ? list.description : ''}</p>
+                                        </div>
+                                        :
+                                        <div className="textDetail container" style={{ backgroundColor: '#f2f2f2', marginTop: '20px' }}>
+                                            <h1 className="font" >{list ? list.title : ''}</h1>
+                                            <h3>{list ? list.writter : ''}</h3>
+                                            <h6 className="tgl">{this.formatDate(list ? list.updated_at : '')}</h6>
+                                            <ul className="tambahandetail">
+                                                <li><h5 className="category">{list ? list.category_name : ''}</h5></li>
+                                                <li><h5 className="location">{list ? list.location : ''}</h5></li>
+                                                <li><h5 className="status">{list ? list.status : ''}</h5></li>
+                                            </ul>
+                                            <p className="textDesc" >{list ? list.description : ''}</p>
+                                        </div>
+                                }
+                            </section>
+                        </>
+                }
 
             </div>)
     }

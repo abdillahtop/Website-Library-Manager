@@ -20,15 +20,19 @@ class navbar extends React.Component {
     Logout() {
         const userid = dataUser.id_user
         this.props.dispatch(Logout(userid))
-        this.setState({
-            users: this.props.user
-        })
-        Swal.fire({
-            type: 'success',
-            title: `Log Out Success`,
-            confirmButtonText:
-                '<a href="/" class="butSweet">OK</a>'
-        })
+            .then(() => {
+                this.setState({
+                    users: this.props.user
+                })
+                setTimeout(() => {
+                    window.location.href = '/'
+                }, 1000);
+                Swal.fire({
+                    type: 'success',
+                    title: `Log Out Success`,
+                    showConfirmButton: false,
+                })
+            })
 
     }
     render() {
