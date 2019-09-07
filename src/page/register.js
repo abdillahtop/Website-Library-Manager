@@ -19,24 +19,29 @@ class Register extends Component {
         };
     }
 
-    // componentDidMount = async () => {
-    //     await this.props.dispatch(detailBook(this.props.match.params.bookid))
-    //     this.setState({
-    //         books: this.props.book
-    //     })
-    // }
-
     newUser(data) {
         this.props.dispatch(postRegister(data))
-        this.setState({
-            registers: this.props.register
-        })
-        Swal.fire({
-            type: 'success',
-            title: `Daftar Berhasil`,
-            showCloseButton: true,
-            showConfirmButton: false
-        })
+            .then(() => {
+                this.setState({
+                    registers: this.props.register
+                })
+                Swal.fire({
+                    type: 'success',
+                    title: `Daftar Berhasil`,
+                    showConfirmButton: false
+                })
+                setTimeout(() => {
+                    window.location.href = '/login'
+                }, 1000);
+            })
+            .catch(() => {
+                this.setState({
+                    id_card: '',
+                    email: '',
+                    fullname: '',
+                    password: ''
+                })
+            })
     }
 
     render() {

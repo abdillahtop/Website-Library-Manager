@@ -17,11 +17,11 @@ export default class link extends Component {
             <Provider store={store}>
                 <Router>
                     <Route exact path='/' component={Home} />
-                    <Route exact path='/alluser' component={User} />
-                    <Route exact path='/book/:bookid' component={Detail} />
-                    <Route exact path='/loan' component={Loaning} />
-                    <Route exact path='/loan/:cardid' component={LoanUser} />
-                    <Route exact path='/register' component={Register} />
+                    <Route path='/alluser' component={User} />
+                    <Route path='/book/:bookid' component={Detail} />
+                    <Route path='/loan' component={Loaning} />
+                    <Route path='/loan/:cardid' component={LoanUser} />
+                    <Route path='/register' component={Register} />
                 </Router>
             </Provider>
 

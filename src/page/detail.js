@@ -51,12 +51,11 @@ class Detail extends Component {
     addLoaning(data) {
         this.props.dispatch(postLoaning(data))
             .then(() => {
-                this.toggle()
                 this.setState({
                     loanings: this.props.loaning
                 })
                 setTimeout(() => {
-                    window.location.reload()
+                    window.location.href = '/'
                 }, 500);
 
                 Swal.fire({
