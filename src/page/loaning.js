@@ -66,7 +66,7 @@ class cekLoan extends Component {
                 <div>
                     <Navbar />
                 </div>
-                <div className="container table-responsive" style={{ marginTop: '3em', justifyItems: 'center' }}>
+                <div className="container table-responsive" style={{ marginTop: '100px', justifyItems: 'center' }}>
 
                     <Table>
                         {

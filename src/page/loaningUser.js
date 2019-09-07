@@ -44,7 +44,7 @@ class CekLoanUser extends Component {
                 <div>
                     <Navbar />
                 </div>
-                <div className="container " style={{ marginTop: '3em', justifyItems: 'center' }}>
+                <div className="container " style={{ marginTop: '100px', justifyItems: 'center' }}>
 
                     <Table className="col-md-12 ml-4 table-responsive" style={{ justifyContent: 'center', alignItems: 'center' }}>
                         {

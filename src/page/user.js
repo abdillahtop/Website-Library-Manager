@@ -81,7 +81,7 @@ class IsUser extends Component {
                 <div>
                     <Nav />
                 </div>
-                <div className="container" style={{ marginTop: '3em' }}>
+                <div className="container" style={{ marginTop: '100px' }}>
 
 
                     {
