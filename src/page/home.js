@@ -100,7 +100,7 @@ class Home extends Component {
                 <div>
                     <Nav />
                 </div>
-                <div className="container" style={{ marginTop: '50px' }}>
+                <div className="container" style={{ marginTop: '100px' }}>
                     {
                         dataUser.role === 'admin'
                             ?
