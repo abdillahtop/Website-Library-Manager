@@ -43,12 +43,16 @@ class Login extends Component {
                         loading: false
                     })
                 })
-                .catch(() => [
+                .catch(() => {
+                    this.toggle()
                     Swal.fire({
                         type: 'error',
-                        title: `Email atau Password salah`,
+                        title: `Email atau Password salah`
                     })
-                ])
+                    this.setState({
+                        loading: false
+                    })
+                })
         }
     }
 

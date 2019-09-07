@@ -97,7 +97,9 @@ class Home extends Component {
         console.log("booklist", list)
         return (
             <div>
-                <Nav />
+                <div>
+                    <Nav />
+                </div>
                 <div className="container" style={{ marginTop: '50px' }}>
                     {
                         dataUser.role === 'admin'
